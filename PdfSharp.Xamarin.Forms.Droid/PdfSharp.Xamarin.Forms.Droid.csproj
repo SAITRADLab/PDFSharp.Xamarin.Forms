@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -15,7 +15,7 @@
     <FileAlignment>512</FileAlignment>
     <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <TargetFrameworkVersion>v9.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v10.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="AndroidImageSource.cs" />
     <Compile Include="AndroidImageSourceImpl.cs" />
+    <Compile Include="GetExternalStorage.cs" />
     <Compile Include="Orientation.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
@@ -61,14 +62,22 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="ExifLib.PCL">
+      <Version>1.0.1</Version>
+    </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.AppCompat">
       <Version>1.0.2-preview02</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Forms">
       <Version>4.8.0.1821</Version>
     </PackageReference>
-  <PackageReference Include="Xamarin.AndroidX.Migration" Version="1.0.0-preview03" /></ItemGroup>
+    <PackageReference Include="Xamarin.AndroidX.Migration" Version="1.0.0-preview03" />
+  </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Urchin-Mobile\Urchin\Urchin\Urchin.csproj">
+      <Project>{5c942fc7-e09b-475b-883e-3c37a4604bc3}</Project>
+      <Name>Urchin</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PdfSharp.Xamarin.Forms\PdfSharp.Xamarin.Forms.csproj">
       <Project>{86bc6014-ac2d-452b-a4c4-d8e90cd54596}</Project>
       <Name>PdfSharp.Xamarin.Forms</Name>

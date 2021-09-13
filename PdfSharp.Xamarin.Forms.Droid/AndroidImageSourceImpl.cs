@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Graphics;
+using ExifLib;
 using static Android.Graphics.Bitmap;
 using static Android.Graphics.BitmapFactory;
 using static MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes.ImageSource;
@@ -17,7 +18,7 @@ namespace PdfSharp.Xamarin.Forms.Droid
 
 		private readonly Func<Stream> _streamSource;
 		private readonly int _quality;
-
+		public int RotateFactor { get; set; }
 		public int Width { get; }
 		public int Height { get; }
 		public string Name { get; }
@@ -27,8 +28,11 @@ namespace PdfSharp.Xamarin.Forms.Droid
 			Name = name;
 			_streamSource = streamSource;
 			_quality = quality;
+			
 			using (var stream = streamSource.Invoke())
 			{
+				var jpegInfo = ExifReader.ReadJpeg(stream);
+
 				Orientation = Orientation.Normal;
 				stream.Seek(0, SeekOrigin.Begin);
 				var options = new Options { InJustDecodeBounds = true };
@@ -47,41 +51,69 @@ namespace PdfSharp.Xamarin.Forms.Droid
 			ct.Register(() => {
 				tcs.TrySetCanceled();
 			});
-			var task = Task.Run(() => {
+			var task = Task.Run(() =>
+			{
+
 				Matrix mx = new Matrix();
 				ct.ThrowIfCancellationRequested();
-				//using (var bitmap = this.Bitmap; DecodeStream(_streamSource.Invoke()))
-				//{
-				switch (Orientation)
-				{
-					case Orientation.Rotate90:
+
+                switch (RotateFactor)
+                {
+					case 90:
 						mx.PostRotate(90);
-						break;
-					case Orientation.Rotate180:
+						Console.WriteLine($"ROTATING 90 DEGREES Rotate FACTOR: {RotateFactor}");
+						ct.ThrowIfCancellationRequested();
+                        Bitmap.Compress(CompressFormat.Jpeg, _quality, ms);
+                        ct.ThrowIfCancellationRequested();
+                        break;
+					case 180:
+						Console.WriteLine($"ROTATING 180 DEGREES Rotate FACTOR: {RotateFactor}");
 						mx.PostRotate(180);
 						break;
-					case Orientation.Rotate270:
+					case 270:
+						Console.WriteLine($"ROTATING 270 DEGREES Rotate FACTOR: {RotateFactor}");
 						mx.PostRotate(270);
 						break;
 					default:
-						ct.ThrowIfCancellationRequested();
-						Bitmap.Compress(CompressFormat.Jpeg, _quality, ms);
-						ct.ThrowIfCancellationRequested();
-						return;
+						break;
 				}
-				ct.ThrowIfCancellationRequested();
-				using (var flip = Android.Graphics.Bitmap.CreateBitmap(Bitmap, 0, 0, Bitmap.Width, Bitmap.Height, mx, true))
-				{
-					flip.Compress(CompressFormat.Jpeg, _quality, ms);
-				}
-				ct.ThrowIfCancellationRequested();
-				//}
+					//switch (Orientation)
+					//{
+					//	case Orientation.Rotate90:
+					//		mx.PostRotate(90);
+					//		break;
+					//	case Orientation.Rotate180:
+					//		mx.PostRotate(180);
+					//		break;
+					//	case Orientation.Rotate270:
+					//		mx.PostRotate(270);
+					//		break;
+					//	default:
+					//	//Console.WriteLine($"BITMAP{}");
+					//	ct.ThrowIfCancellationRequested();
+					//		Bitmap.Compress(CompressFormat.Jpeg, _quality, ms);
+					//	ct.ThrowIfCancellationRequested();
+					//		return;
+					//}
+					ct.ThrowIfCancellationRequested();
+					using (var flip = CreateBitmap(Bitmap, 0, 0, Bitmap.Width, Bitmap.Height, mx, true))
+					{
+						flip.Compress(CompressFormat.Jpeg, _quality, ms);
+					}
+					ct.ThrowIfCancellationRequested();
 			});
 			Task.WaitAny(task, tcs.Task);
 			tcs.TrySetCanceled();
 			ct.ThrowIfCancellationRequested();
 			if (task.IsFaulted)
+            {
+				foreach(var ex in task.Exception.InnerExceptions)
+                {
+					Console.WriteLine($"++++ Exception: {ex}");
+                }
 				throw task.Exception;
+			}
+				
 		}
 	}
 }

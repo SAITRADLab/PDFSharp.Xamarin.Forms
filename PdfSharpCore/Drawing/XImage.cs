@@ -187,7 +187,7 @@ namespace PdfSharpCore.Drawing
 
         public MemoryStream AsJpeg(CancellationToken ct)
         {
-            var ms = new MemoryStream();
+            var ms =  new MemoryStream();
             _source.SaveAsJpeg(ms, ct);
             ms.Position = 0;
             return ms;

@@ -70,5 +70,17 @@ namespace PdfSharp.Xamarin.Forms
 
 			return generator.Generate();
 		}
+
+		public static void RegisterRenderer(Type viewType, Type rendererType)
+		{
+			if (Instance == null)
+				throw new InvalidOperationException("You must call Init firsts");
+			if (!rendererType.GetTypeInfo().IsSubclassOf(typeof(Renderers.PdfRendererBase)))
+				throw new ArgumentException("Renderertype Must inherit PdfRenderdererBase<View>");
+			if (Instance.Renderers.ContainsKey(viewType))
+				Instance.Renderers[viewType] = rendererType;
+			else
+				Instance.Renderers[viewType] = rendererType;
+		}
 	}
 }

@@ -2,6 +2,7 @@
 using PdfSharp.Xamarin.Forms.Extensions;
 using PdfSharpCore.Drawing;
 using Xamarin.Forms;
+using System;
 
 namespace PdfSharp.Xamarin.Forms.Renderers
 {
@@ -10,17 +11,20 @@ namespace PdfSharp.Xamarin.Forms.Renderers
 	{
 		public override async void CreatePDFLayout(XGraphics page, Image image, XRect bounds, double scaleFactor)
 		{
-			if (image.BackgroundColor != default)
-				page.DrawRectangle(image.BackgroundColor.ToXBrush(), bounds);
+			
+			Console.WriteLine($"++++ The image source: {image.Source}");
+            if (image.BackgroundColor != default)
+                page.DrawRectangle(image.BackgroundColor.ToXBrush(), bounds);
 
-			if (image.Source == null)
+            if (image.Source == null)
 				return;
 
 			XImage img = null;
-
+			Console.WriteLine($"+++++ THE TYPE OF IMAGE SOURCE IS: {image.Source.GetType()}");
 			switch (image.Source)
-			{
+			{ 
 				case FileImageSource fileImageSource:
+					
 					img = XImage.FromFile(fileImageSource.File);
 					break;
 				case UriImageSource uriImageSource:
@@ -54,8 +58,9 @@ namespace PdfSharp.Xamarin.Forms.Renderers
 					desiredBounds = bounds;
 					break;
 			}
-
-			page.DrawImage(img, desiredBounds, new System.Threading.CancellationToken());
+			Console.WriteLine("++++ JUST BEFORE THE CALL TO DRAWIMAGE");
+			System.Threading.CancellationToken ct = new System.Threading.CancellationToken();
+			page.DrawImage(img, desiredBounds.X, desiredBounds.Y, desiredBounds.Width, desiredBounds.Height, ct);
 		}
 	}
 }

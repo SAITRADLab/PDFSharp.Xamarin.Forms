@@ -8,7 +8,7 @@ namespace PdfSharp.Xamarin.Sample.Droid
 	{
 		public void Save(PdfDocument doc, string fileName)
 		{
-			string path = System.IO.Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + fileName);
+			string path = System.IO.Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/" + fileName);
 
 			doc.Save(path);
 			doc.Close();

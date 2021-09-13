@@ -19,6 +19,10 @@ namespace PdfSharp.Xamarin.Forms
 		readonly PageOrientation _orientation;
 		readonly PageSize _pageSize;
 		readonly View _rootView;
+		double prevY = 0;
+		double placeHolderY = 0;
+		double thirdone = 0;
+		int count = 0;
 
 		List<ViewInfo> _viewsToDraw;
 		#endregion
@@ -49,13 +53,43 @@ namespace PdfSharp.Xamarin.Forms
 		Point invisiblesOffsetTreshold = new Point(0, 0);
 		private void VisitView(View view, Point pageOffset)
 		{
+			Console.WriteLine($"THIS IS THE VIEWS Y VALUE: {view.Y} and the type {view.GetType()}");
+			count++;
+			Point newOffset = new Point();
 			if (!PdfRendererAttributes.ShouldRenderView(view))
 				return;
+			//Point newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
+			//							pageOffset.Y + view.Y * _scaleFactor + invisiblesOffsetTreshold.Y);
+            if (this.prevY == 0)
+            {
+                newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
+                                        pageOffset.Y + view.Y * _scaleFactor + invisiblesOffsetTreshold.Y);
+                prevY = view.Y + 12;
+            }
+            else
+            {
+				//thirdone is for holding the prevy value without updating it to prevy = prevy + 12
+				
+				//If the previous views y is same as the current, place it beside it on the pdf
+				if ( placeHolderY == view.Y)
+                {
+					newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
+										pageOffset.Y + thirdone* _scaleFactor + invisiblesOffsetTreshold.Y);
+					prevY = prevY + 12;
+				}
+				else {
+					newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
+									   pageOffset.Y + prevY * _scaleFactor + invisiblesOffsetTreshold.Y);
+					thirdone = prevY;
+					prevY = prevY + 12;
+				}
+               
+				
+				placeHolderY = view.Y;
+            }
 
-			Point newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
-										pageOffset.Y + view.Y * _scaleFactor + invisiblesOffsetTreshold.Y);
 
-			Rectangle bounds = new Rectangle(newOffset,
+            Rectangle bounds = new Rectangle(newOffset,
 				new Size(view.Bounds.Width * _scaleFactor, view.Bounds.Height * _scaleFactor));
 			_viewsToDraw.Add(new ViewInfo {View = view, Offset = newOffset, Bounds = bounds});
 
@@ -144,10 +178,11 @@ namespace PdfSharp.Xamarin.Forms
 		{
 			var document = new PdfDocument();
 
-			int numberOfPages = (int) Math.Ceiling(_viewsToDraw.Max(x => x.Offset.Y + x.View.HeightRequest * _scaleFactor) / _desiredPageSize.Height);
+			int numberOfPages = 2;
 
 			for (int i = 0; i < numberOfPages; i++)
 			{
+				
 				var page = document.AddPage();
 				page.Orientation = _orientation;
 				page.Size = _pageSize;
@@ -157,6 +192,7 @@ namespace PdfSharp.Xamarin.Forms
 
 				foreach (var v in viewsInPage)
 				{
+					Console.WriteLine($"View ID: {v.View.AutomationId}");
 					var rList = PDFManager.Instance.Renderers.FirstOrDefault(x => x.Key == v.View.GetType());
 					//Draw ListView Content With Delegate
 					if (v is ListViewInfo vInfo)
@@ -187,7 +223,7 @@ namespace PdfSharp.Xamarin.Forms
 														v.Offset.Y + _desiredPageSize.Y - (i * _desiredPageSize.Height),
 														v.Bounds.Width,
 														v.Bounds.Height);
-
+						
 						renderer.CreateLayout(gfx, v.View, desiredBounds, _scaleFactor);
 					}
 				}
