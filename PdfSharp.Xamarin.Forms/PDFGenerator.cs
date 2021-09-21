@@ -22,7 +22,7 @@ namespace PdfSharp.Xamarin.Forms
 		double prevY = 0;
 		double placeHolderY = 0;
 		double thirdone = 0;
-		int count = 0;
+		double prevHeight = 0;
 
 		List<ViewInfo> _viewsToDraw;
 		#endregion
@@ -53,8 +53,7 @@ namespace PdfSharp.Xamarin.Forms
 		Point invisiblesOffsetTreshold = new Point(0, 0);
 		private void VisitView(View view, Point pageOffset)
 		{
-			Console.WriteLine($"THIS IS THE VIEWS Y VALUE: {view.Y} and the type {view.GetType()}");
-			count++;
+			Console.WriteLine($"++++ This is the Y value: {view.Y} and the type {view.GetType().Name} the bottom of this view is {view.Bounds.Bottom} and the height is: {view.Bounds.Height}");
 			Point newOffset = new Point();
 			if (!PdfRendererAttributes.ShouldRenderView(view))
 				return;
@@ -64,26 +63,47 @@ namespace PdfSharp.Xamarin.Forms
             {
                 newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
                                         pageOffset.Y + view.Y * _scaleFactor + invisiblesOffsetTreshold.Y);
-                prevY = view.Y + 12;
+				prevY = view.Y + 10;
             }
             else
             {
 				//thirdone is for holding the prevy value without updating it to prevy = prevy + 12
-				
 				//If the previous views y is same as the current, place it beside it on the pdf
 				if ( placeHolderY == view.Y)
                 {
+					
 					newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
 										pageOffset.Y + thirdone* _scaleFactor + invisiblesOffsetTreshold.Y);
-					prevY = prevY + 12;
+					prevY =  prevY + (view.Bounds.Height / 2.75);
 				}
 				else {
-					newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
-									   pageOffset.Y + prevY * _scaleFactor + invisiblesOffsetTreshold.Y);
-					thirdone = prevY;
-					prevY = prevY + 12;
+
+					if (view.GetType() == typeof(Image) && view.Bounds.Height == 300)
+					{
+						newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
+											pageOffset.Y + (prevY + 300) * _scaleFactor + invisiblesOffsetTreshold.Y);
+					}
+					else
+                    {
+						newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
+															   pageOffset.Y + prevY * _scaleFactor + invisiblesOffsetTreshold.Y);
+
+						thirdone = prevY;
+						if (view.GetType() == typeof(Image))
+                        {
+							prevY = prevY + view.Bounds.Height;
+						}
+						else
+                        {
+							prevY = prevY + (view.Bounds.Height / 2.75);
+						}
+						
+					}
+
+					
+					
 				}
-               
+				Console.WriteLine($"++++ The PrevY value is: {prevY}");
 				
 				placeHolderY = view.Y;
             }
@@ -91,6 +111,9 @@ namespace PdfSharp.Xamarin.Forms
 
             Rectangle bounds = new Rectangle(newOffset,
 				new Size(view.Bounds.Width * _scaleFactor, view.Bounds.Height * _scaleFactor));
+			double temp = bounds.X;
+			bounds.X = bounds.Y;
+			bounds.Y = temp;
 			_viewsToDraw.Add(new ViewInfo {View = view, Offset = newOffset, Bounds = bounds});
 
 			if (view is ListView)
@@ -178,7 +201,8 @@ namespace PdfSharp.Xamarin.Forms
 		{
 			var document = new PdfDocument();
 
-			int numberOfPages = 2;
+
+			int numberOfPages = (int)Math.Ceiling(_viewsToDraw.Max(x => x.Offset.Y + x.View.HeightRequest * _scaleFactor) / _desiredPageSize.Height);
 
 			for (int i = 0; i < numberOfPages; i++)
 			{
