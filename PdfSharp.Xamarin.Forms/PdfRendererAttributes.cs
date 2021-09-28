@@ -5,11 +5,15 @@ namespace PdfSharp.Xamarin.Forms
 {
 	public class PdfRendererAttributes : BindableObject
 	{
-		public bool ShouldRender
+		public static bool GetShouldRender(BindableObject view)
 		{
-			get => (bool) GetValue(ShouldRenderProperty);
-			set => SetValue(ShouldRenderProperty, value);
+			return (bool)view.GetValue(ShouldRenderProperty);
 		}
+
+		public static void SetShouldRender(BindableObject view, bool value)
+        {
+			view.SetValue(ShouldRenderProperty, value);
+        }
 
 		public PdfListViewRendererDelegate ListRendererDelegate
 		{
@@ -18,7 +22,7 @@ namespace PdfSharp.Xamarin.Forms
 		}
 
 		public static readonly BindableProperty ShouldRenderProperty =
-			BindableProperty.CreateAttached(nameof(ShouldRender), typeof(bool), typeof(PdfRendererAttributes), true);
+			BindableProperty.CreateAttached("ShouldRender", typeof(bool), typeof(PdfRendererAttributes), true);
 
 		public static readonly BindableProperty ListRendererDelegateProperty =
 			BindableProperty.CreateAttached(nameof(ListRendererDelegate), typeof(PdfListViewRendererDelegate),

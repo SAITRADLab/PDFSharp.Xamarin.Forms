@@ -33,8 +33,8 @@ namespace PdfSharp.Xamarin.Forms.Renderers
 				page.DrawEllipse(Color.Black.ToXBrush(), bounds.X + bounds.Height * 0.3, bounds.Y + bounds.Height * 0.3,
 					bounds.Height * 0.4, bounds.Height * 0.4);
 
-			if (!string.IsNullOrEmpty(button.Text))
-				page.DrawString(button.Text, font, textColor.ToXBrush(),
+			if (!string.IsNullOrEmpty(button.Content.ToString()))
+				page.DrawString(button.Content.ToString(), font, textColor.ToXBrush(),
 					new XRect(new XPoint(bounds.X + bounds.Height, bounds.Y),
 						new XSize(bounds.Width - bounds.Height, bounds.Height)), DefaultTextFormat);
 		}

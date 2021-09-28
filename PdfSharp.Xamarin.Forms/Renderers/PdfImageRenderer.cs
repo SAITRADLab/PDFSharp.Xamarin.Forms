@@ -24,7 +24,6 @@ namespace PdfSharp.Xamarin.Forms.Renderers
 			switch (image.Source)
 			{ 
 				case FileImageSource fileImageSource:
-					
 					img = XImage.FromFile(fileImageSource.File);
 					break;
 				case UriImageSource uriImageSource:

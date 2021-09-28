@@ -20,9 +20,7 @@ namespace PdfSharp.Xamarin.Forms.Droid
 
 		protected override IImageSource FromFileImpl(string path, int? quality = 75)
 		{
-			var newFile = System.IO.Path.Combine(FileSystem.CacheDirectory, path);
-            Console.WriteLine($"++++++ PATH TO FILE: {newFile}");
-			Console.WriteLine($"+++++ IN FILE");
+			var newFile = System.IO.Path.Combine(FileSystem.AppDataDirectory, path);
             ExifInterface exif = new ExifInterface(newFile);
             int orientation = exif.GetAttributeInt(ExifInterface.TagOrientation, -1);
             Console.WriteLine($"ORIENTATION {orientation}");
@@ -80,7 +78,7 @@ namespace PdfSharp.Xamarin.Forms.Droid
             Console.WriteLine($"+++++ Bitmap its self {bitmap.ByteCount}");
             
             bitmap.Compress(CompressFormat.Jpeg, 75, stream);
-            
+
             Console.WriteLine($"+++++ Bitmap its self after compress {bitmap.ByteCount}");
 
             return new AndroidImageSourceImpl(newFile, () => stream, quality ?? 75) { Bitmap = bitmap, RotateFactor = rotate};

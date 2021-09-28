@@ -78,27 +78,28 @@ namespace PdfSharp.Xamarin.Forms
 				}
 				else {
 
-					if (view.GetType() == typeof(Image) && view.Bounds.Height == 300)
-					{
-						newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
-											pageOffset.Y + (prevY + 300) * _scaleFactor + invisiblesOffsetTreshold.Y);
-					}
-					else
+                    if (view.GetType() == typeof(Image) && view.Bounds.Height == 300)
                     {
-						newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
+						Console.WriteLine($"We ahve gone into the photo taken if check");
+                        newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
+                                            pageOffset.Y + prevY - 650 * _scaleFactor + invisiblesOffsetTreshold.Y);
+                    }
+                    else
+                    {
+                        newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
 															   pageOffset.Y + prevY * _scaleFactor + invisiblesOffsetTreshold.Y);
 
 						thirdone = prevY;
 						if (view.GetType() == typeof(Image))
                         {
-							prevY = prevY + view.Bounds.Height;
+							prevY = prevY + (view.Bounds.Height);
 						}
 						else
                         {
 							prevY = prevY + (view.Bounds.Height / 2.75);
-						}
-						
-					}
+                        }
+
+                    }
 
 					
 					
@@ -211,16 +212,18 @@ namespace PdfSharp.Xamarin.Forms
 				page.Orientation = _orientation;
 				page.Size = _pageSize;
 				var gfx = XGraphics.FromPdfPage(page, XGraphicsUnit.Millimeter);
+				
 
 				var viewsInPage = _viewsToDraw.Where(x => x.Offset.Y >= i * _desiredPageSize.Height && (x.Offset.Y + x.Bounds.Height * _scaleFactor) <= (i + 1) * _desiredPageSize.Height).ToList();
 
 				foreach (var v in viewsInPage)
 				{
-					Console.WriteLine($"View ID: {v.View.AutomationId}");
+					Console.WriteLine($"++++ View TYPE IMAGE -- 0: {v.View.GetType()}");
 					var rList = PDFManager.Instance.Renderers.FirstOrDefault(x => x.Key == v.View.GetType());
 					//Draw ListView Content With Delegate
 					if (v is ListViewInfo vInfo)
 					{
+						Console.WriteLine($"++++ View TYPE IMAGE -- 1: {v.View.GetType()}");
 						XRect desiredBounds = new XRect(vInfo.Offset.X + _desiredPageSize.X,
 														vInfo.Offset.Y + _desiredPageSize.Y - (i * _desiredPageSize.Height),
 														vInfo.Bounds.Width,
@@ -242,12 +245,12 @@ namespace PdfSharp.Xamarin.Forms
 					//Draw all other Views
 					else if (rList.Value != null && v.Bounds.Width > 0 && v.View.Height > 0)
 					{
+						Console.WriteLine($"++++ View TYPE IMAGE -- 2: {v.View.GetType()}");
 						var renderer = Activator.CreateInstance(rList.Value) as Renderers.PdfRendererBase;
 						XRect desiredBounds = new XRect(v.Offset.X + _desiredPageSize.X,
 														v.Offset.Y + _desiredPageSize.Y - (i * _desiredPageSize.Height),
 														v.Bounds.Width,
 														v.Bounds.Height);
-						
 						renderer.CreateLayout(gfx, v.View, desiredBounds, _scaleFactor);
 					}
 				}
