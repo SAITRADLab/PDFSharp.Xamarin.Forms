@@ -82,7 +82,7 @@ namespace PdfSharp.Xamarin.Forms
                     {
 						Console.WriteLine($"We ahve gone into the photo taken if check");
                         newOffset = new Point(pageOffset.X + view.X * _scaleFactor + invisiblesOffsetTreshold.X,
-                                            pageOffset.Y + prevY - 650 * _scaleFactor + invisiblesOffsetTreshold.Y);
+                                            pageOffset.Y + prevY - 500 * _scaleFactor + invisiblesOffsetTreshold.Y);
                     }
                     else
                     {
